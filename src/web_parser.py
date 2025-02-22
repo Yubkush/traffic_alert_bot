@@ -52,7 +52,7 @@ def get_paragraphs() -> list[str]:
     return []
 
 
-def get_next_day_game_data() -> str:
+def get_tomorrows_game_data() -> str:
     res = ""
     for p in get_paragraphs():
         details = p.split()

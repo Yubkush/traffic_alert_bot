@@ -3,7 +3,7 @@ from datetime import time
 from dotenv import load_dotenv
 from telegram.ext import ApplicationBuilder, ContextTypes, JobQueue
 
-from web_parser import get_next_day_game_data
+from web_parser import get_tomorrows_game_data
 
 
 GROUP_ID = "@mtm_trafic_alert_grp"
@@ -16,7 +16,7 @@ def to_utc(hour: int):
 
 
 async def send_games_daily(context: ContextTypes.DEFAULT_TYPE) -> None:
-    text = get_next_day_game_data()
+    text = get_tomorrows_game_data()
     if text:
         await context.bot.send_message(chat_id=GROUP_ID, text=text)
 
