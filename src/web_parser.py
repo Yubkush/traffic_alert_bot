@@ -61,19 +61,3 @@ def get_next_day_game_data() -> str:
             if is_game_tomorrow(date):
                 [_, date_str, time_str] = details
                 res += f"There is a game tomorrow {get_week_day_str(date)} the {date_str} at {time_str}\n"
-
-
-def get_week_game_data() -> str:
-    res = ""
-    for p in get_paragraphs():
-        details = p.split()
-        if is_game_info(details) and is_date(details[1]):
-            date = datetime.strptime(details[1], "%d/%m/%Y").date()
-            [_, date_str, time_str] = details
-            res += f"There is a game on {get_week_day_str(date)} the {date_str} at {time_str}\n"
-
-    return res
-
-
-if __name__ == "__main__":
-    get_week_game_data()
