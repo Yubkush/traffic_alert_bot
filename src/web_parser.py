@@ -1,5 +1,3 @@
-"""Module to parse for soccer games"""
-
 from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
@@ -25,16 +23,33 @@ def is_date(date_string: str):
     except ValueError:
         return False
 
-r = requests.get(URL)
+def is_game_info(strs: list[str]):
+    return len(strs) == 3
 
-soup = BeautifulSoup(r.content, 'html.parser')
+def get_week_game_data() -> str:
+    try:
+        r = requests.get(URL)
+        r.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching data: {e}")
+        r = None
 
-paragraphs = [p.string for p in soup.find_all('p')]
+    if r:
+        parser = BeautifulSoup(r.content, 'html.parser')
 
-for p in paragraphs:
-    strs = p.split()
-    if len(strs) == 3 and is_date(strs[1]):
-        date = datetime.strptime(strs[1], '%d/%m/%Y').date()
-        date_str = strs[1]
-        time_str = strs[2]
-        print(f"There is a game on {get_week_day_str(date)} the {strs[1]} at {strs[2]}")
+        paragraphs = [p.string for p in parser.find_all('p')]
+
+        res = ""
+        for p in paragraphs:
+            details = p.split()
+            if is_game_info(details) and is_date(details[1]):
+                date = datetime.strptime(details[1], '%d/%m/%Y').date()
+                [_, date_str, time_str] = details
+                res += f"There is a game on {get_week_day_str(date)} the {date_str} at {time_str}\n"
+
+        return res
+    
+    return ""
+
+if __name__ == "__main__":
+    get_week_game_data()
