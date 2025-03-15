@@ -18,16 +18,30 @@ def get_week_day_str(date_str):
     return WEEKDAYS[date_str.weekday()]
 
 
-def is_date(date_string: str):
-    try:
-        datetime.strptime(date_string, "%d/%m/%Y")
-        return True
-    except ValueError:
-        return False
-
-
-def is_game_info(strs: list[str]):
-    return len(strs) == 3
+def find_date_time(words: list[str]):
+    date = None
+    time = None
+    for string in words:
+        parts = string.split('/')
+        if len(parts) == 3 and all(part.isdigit() for part in parts):
+            [day, month, year] = parts
+            # add "0" padding for day & month
+            if len(day) == 1:
+                day = "0" + day
+            if len(month) == 1:
+                month = "0" + month
+            # add "20" if needed in year
+            if len(year) == 2:
+                year = "20" + year    
+            date = f"{day}/{month}/{year}"
+            continue
+        
+        parts = string.split(':')
+        if len(parts) == 2 and all(part.isdigit() for part in parts):
+            time = string
+            continue
+    
+    return date, time
 
 
 def is_game_tomorrow(date):
@@ -56,8 +70,12 @@ def get_tomorrows_game_data() -> str:
     res = ""
     for p in get_paragraphs():
         details = p.split()
-        if is_game_info(details) and is_date(details[1]):
-            date = datetime.strptime(details[1], "%d/%m/%Y").date()
-            if is_game_tomorrow(date):
-                [_, date_str, time_str] = details
-                res += f"There is a game tomorrow {get_week_day_str(date)} the {date_str} at {time_str}\n"
+        (date, time) = find_date_time(details)
+        if date is not None and time is not None:
+            date_formatted = datetime.strptime(date, "%d/%m/%Y").date()
+            if is_game_tomorrow(date_formatted):
+                res += f"There is a game tomorrow {get_week_day_str(date_formatted)} the {date} at {time}\n"
+    return res
+
+if __name__ == "__main__":
+    print(get_tomorrows_game_data())
